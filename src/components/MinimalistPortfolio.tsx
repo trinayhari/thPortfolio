@@ -1,42 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Github, Linkedin, Mail, ArrowUpRight, Download, MapPin } from 'lucide-react';
+import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 
 const MinimalistPortfolio: React.FC = () => {
-  const [activeSection, setActiveSection] = useState('ABOUT');
+  const [activeSection, setActiveSection] = useState('about');
+  const [scrollY, setScrollY] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const sections = ['ABOUT', 'EDUCATION', 'EXPERIENCE', 'PROJECTS', 'SKILLS'];
+  const sections = ['about', 'education', 'experience', 'projects', 'skills'];
 
   useEffect(() => {
+    setIsVisible(true);
+    
     const handleScroll = () => {
       const scrollContainer = document.getElementById('content-scroll');
-      if (!scrollContainer) return;
-      
-      const scrollPosition = scrollContainer.scrollTop + scrollContainer.clientHeight / 2;
-      
-      const aboutSection = document.getElementById('about-section');
-      const educationSection = document.getElementById('education-section');
-      const experienceSection = document.getElementById('experience-section');
-      const projectsSection = document.getElementById('projects-section');
-      const skillsSection = document.getElementById('skills-section');
-
-      if (aboutSection && educationSection && experienceSection && projectsSection && skillsSection) {
-        const aboutTop = aboutSection.offsetTop;
-        const educationTop = educationSection.offsetTop;
-        const experienceTop = experienceSection.offsetTop;
-        const projectsTop = projectsSection.offsetTop;
-        const skillsTop = skillsSection.offsetTop;
-
-        if (scrollPosition >= skillsTop) {
-          setActiveSection('SKILLS');
-        } else if (scrollPosition >= projectsTop) {
-          setActiveSection('PROJECTS');
-        } else if (scrollPosition >= experienceTop) {
-          setActiveSection('EXPERIENCE');
-        } else if (scrollPosition >= educationTop) {
-          setActiveSection('EDUCATION');
-        } else {
-          setActiveSection('ABOUT');
-        }
+      if (scrollContainer) {
+        setScrollY(scrollContainer.scrollTop);
+        
+        // Update active section based on scroll position
+        const sectionElements = sections.map(id => document.getElementById(`${id}-section`));
+        
+        let currentSection = 'about';
+        sectionElements.forEach((element, index) => {
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            const containerRect = scrollContainer.getBoundingClientRect();
+            if (rect.top <= containerRect.height / 2) {
+              currentSection = sections[index];
+            }
+          }
+        });
+        
+        setActiveSection(currentSection);
       }
     };
 
@@ -48,7 +42,7 @@ const MinimalistPortfolio: React.FC = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(`${sectionId.toLowerCase()}-section`);
+    const element = document.getElementById(`${sectionId}-section`);
     const scrollContainer = document.getElementById('content-scroll');
     if (element && scrollContainer) {
       const offsetTop = element.offsetTop;
@@ -156,64 +150,51 @@ const MinimalistPortfolio: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className={`min-h-screen bg-slate-900 text-white flex transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       {/* Fixed Left Sidebar */}
-      <div className="w-1/2 fixed left-0 top-0 h-screen p-12 lg:p-24 flex flex-col">
+      <div className={`w-1/2 fixed left-0 top-0 h-screen flex flex-col justify-between p-12 lg:p-24 transform transition-all duration-1000 ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Name and Title */}
-        <div className="mb-12">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-            Trinayaan Hariharan
+        <div className={`space-y-4 transform transition-all duration-1000 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+          <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+            Trinayaan
+            <br />
+            <span className="text-teal-400 transition-colors duration-500 hover:text-teal-300">Hariharan</span>
           </h1>
-          <h2 className="text-xl text-slate-400 mb-3">
-            Computer Science Student
-          </h2>
-          <div className="mb-6 space-y-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-400/10 text-teal-400 border border-teal-400/20">
-              🇺🇸 U.S. Citizen
-            </span>
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <MapPin className="w-4 h-4" />
-              <span>Atlanta, GA</span>
-            </div>
-          </div>
-          <p className="text-slate-400 max-w-sm leading-relaxed">
-            I build scalable software solutions and AI-powered applications.
+          <p className="text-xl text-slate-400 max-w-md transition-colors duration-300 hover:text-slate-300">
+            Computer Science Student & Software Engineer
+          </p>
+          <p className="text-slate-500 max-w-md leading-relaxed transition-colors duration-300 hover:text-slate-400">
+            Building scalable solutions and AI-powered applications at the intersection of technology and innovation.
           </p>
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-4 mb-auto">
+        <nav className={`space-y-4 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           {sections.map((section) => (
             <button
               key={section}
               onClick={() => scrollToSection(section)}
-              className={`block text-left transition-colors ${
-                activeSection === section
-                  ? 'text-white'
-                  : 'text-slate-500 hover:text-white'
-              }`}
+              className="flex items-center gap-4 text-left group hover:text-white transition-all duration-300 transform hover:translate-x-2"
             >
-              <div className="flex items-center gap-4">
-                <div className={`h-px transition-all ${
-                  activeSection === section
-                    ? 'w-16 bg-white'
-                    : 'w-8 bg-slate-600'
-                }`}></div>
-                <span className="text-xs font-mono uppercase tracking-widest">
-                  {section}
-                </span>
-              </div>
+              <div className={`h-px transition-all duration-500 ${
+                activeSection === section
+                  ? 'w-16 bg-white shadow-lg shadow-white/20'
+                  : 'w-8 bg-slate-600 group-hover:w-12 group-hover:bg-slate-400'
+              }`}></div>
+              <span className="text-xs font-mono uppercase tracking-widest transition-all duration-300 group-hover:tracking-wider">
+                {section}
+              </span>
             </button>
           ))}
         </nav>
 
         {/* Social Links */}
-        <div className="flex gap-6">
+        <div className={`flex gap-6 transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <a
             href="https://github.com/trinayhari"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-500 hover:text-white transition-colors"
+            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
           >
             <Github className="w-6 h-6" />
           </a>
@@ -221,13 +202,13 @@ const MinimalistPortfolio: React.FC = () => {
             href="https://www.linkedin.com/in/trinayaan-hariharan-0559b720a/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-500 hover:text-white transition-colors"
+            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
           >
             <Linkedin className="w-6 h-6" />
           </a>
           <a
             href="mailto:trinayhari@gmail.com"
-            className="text-slate-500 hover:text-white transition-colors"
+            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
           >
             <Mail className="w-6 h-6" />
           </a>
@@ -235,12 +216,12 @@ const MinimalistPortfolio: React.FC = () => {
       </div>
 
       {/* Scrollable Right Content */}
-      <div className="w-1/2 ml-auto">
-        <div id="content-scroll" className="h-screen overflow-y-auto">
+      <div className={`w-1/2 ml-auto transform transition-all duration-1000 delay-200 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div id="content-scroll" className="h-screen overflow-y-auto scroll-smooth">
           <div className="p-12 lg:p-24 space-y-24">
             {/* About Section */}
             <section id="about-section" className="min-h-screen flex flex-col justify-center">
-              <div className="space-y-6">
+              <div className={`space-y-6 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
 
                 <p className="text-slate-400 leading-relaxed">
                   I'm a Computer Science student at Georgia Tech passionate about building scalable 
@@ -250,7 +231,7 @@ const MinimalistPortfolio: React.FC = () => {
                 </p>
                 <p className="text-slate-400 leading-relaxed">
                   Currently pursuing my B.S. in Computer Science at <span className="text-white font-medium">Georgia Institute of Technology</span> 
-                  with a 3.64 GPA. I have hands-on experience with cloud infrastructure, data engineering, 
+                  . I have hands-on experience with cloud infrastructure, data engineering, 
                   and full-stack development through internships at <span className="text-white font-medium">Amazon Web Services</span> and 
                   <span className="text-white font-medium"> Travelers Insurance</span>.
                 </p>
@@ -262,35 +243,24 @@ const MinimalistPortfolio: React.FC = () => {
                 </p>
                 
                 <div className="grid grid-cols-2 gap-6 mt-8">
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="text-teal-400 text-2xl font-bold mb-1">50K+</div>
+                  <div className="bg-slate-800/50 rounded-lg p-4 transition-all duration-300 hover:bg-slate-800/70 hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10">
+                    <div className="text-teal-400 text-2xl font-bold mb-1 transition-colors duration-300 hover:text-teal-300">50K+</div>
                     <div className="text-slate-400 text-sm">Lines of Code</div>
                   </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="text-teal-400 text-2xl font-bold mb-1">3</div>
+                  <div className="bg-slate-800/50 rounded-lg p-4 transition-all duration-300 hover:bg-slate-800/70 hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10">
+                    <div className="text-teal-400 text-2xl font-bold mb-1 transition-colors duration-300 hover:text-teal-300">3</div>
                     <div className="text-slate-400 text-sm">Major Internships</div>
                   </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="text-teal-400 text-2xl font-bold mb-1">500+</div>
+                  <div className="bg-slate-800/50 rounded-lg p-4 transition-all duration-300 hover:bg-slate-800/70 hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10">
+                    <div className="text-teal-400 text-2xl font-bold mb-1 transition-colors duration-300 hover:text-teal-300">500+</div>
                     <div className="text-slate-400 text-sm">Students Mentored</div>
                   </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="text-teal-400 text-2xl font-bold mb-1">15+</div>
+                  <div className="bg-slate-800/50 rounded-lg p-4 transition-all duration-300 hover:bg-slate-800/70 hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10">
+                    <div className="text-teal-400 text-2xl font-bold mb-1 transition-colors duration-300 hover:text-teal-300">15+</div>
                     <div className="text-slate-400 text-sm">Technologies Mastered</div>
                   </div>
                 </div>
 
-                <div className="pt-6 mt-8">
-                  <a
-                    href="/resume.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-teal-400/10 text-teal-400 hover:bg-teal-400/20 px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download Resume</span>
-                  </a>
-                </div>
               </div>
             </section>
 
@@ -343,12 +313,12 @@ const MinimalistPortfolio: React.FC = () => {
                 </div>
 
                 {experiences.map((exp, index) => (
-                  <div key={index} className="group relative">
+                  <div key={index} className="group relative transform transition-all duration-500 hover:scale-[1.02]">
                     {exp.link && (
                       <a href={exp.link} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10" />
                     )}
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-700"></div>
-                    <div className="absolute left-0 top-6 w-2 h-2 bg-teal-400 rounded-full -translate-x-0.5"></div>
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-700 transition-colors duration-300 group-hover:bg-teal-400/50"></div>
+                    <div className="absolute left-0 top-6 w-2 h-2 bg-teal-400 rounded-full -translate-x-0.5 transition-all duration-300 group-hover:w-3 group-hover:h-3 group-hover:shadow-lg group-hover:shadow-teal-400/50"></div>
                     <div className="pl-8">
                       <div className="text-xs text-slate-500 font-mono mb-2 uppercase tracking-wide">
                         {exp.period}
@@ -402,7 +372,7 @@ const MinimalistPortfolio: React.FC = () => {
 
                 <div className="grid gap-6">
                   {projects.map((project, index) => (
-                    <div key={index} className="group bg-slate-800/30 rounded-lg p-6 hover:bg-slate-800/50 transition-all relative">
+                    <div key={index} className="group bg-slate-800/30 rounded-lg p-6 hover:bg-slate-800/50 transition-all duration-500 relative transform hover:scale-[1.02] hover:shadow-xl hover:shadow-teal-400/10">
                       {project.link && (
                         <a href={project.link} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10" />
                       )}
@@ -411,7 +381,7 @@ const MinimalistPortfolio: React.FC = () => {
                           {project.title}
                         </h3>
                         {project.link && (
-                          <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors" />
+                          <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-12" />
                         )}
                       </div>
                       <p className="text-slate-400 text-sm leading-relaxed mb-4">
