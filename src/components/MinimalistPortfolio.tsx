@@ -3,8 +3,8 @@ import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 
 const MinimalistPortfolio: React.FC = () => {
   const [activeSection, setActiveSection] = useState('about');
-  const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const sections = ['about', 'education', 'experience', 'projects', 'skills'];
 
@@ -14,8 +14,6 @@ const MinimalistPortfolio: React.FC = () => {
     const handleScroll = () => {
       const scrollContainer = document.getElementById('content-scroll');
       if (scrollContainer) {
-        setScrollY(scrollContainer.scrollTop);
-        
         // Update active section based on scroll position
         const sectionElements = sections.map(id => document.getElementById(`${id}-section`));
         
@@ -34,11 +32,23 @@ const MinimalistPortfolio: React.FC = () => {
       }
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
     const scrollContainer = document.getElementById('content-scroll');
     if (scrollContainer) {
       scrollContainer.addEventListener('scroll', handleScroll);
-      return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -150,7 +160,12 @@ const MinimalistPortfolio: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-slate-900 text-white flex transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+    <div 
+      className={`min-h-screen text-white flex transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'} relative overflow-hidden`}
+      style={{
+        background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(20, 184, 166, 0.1), transparent 50%), #0f172a`
+      }}
+    >
       {/* Fixed Left Sidebar */}
       <div className={`w-1/2 fixed left-0 top-0 h-screen flex flex-col justify-between p-12 lg:p-24 transform transition-all duration-1000 ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Name and Title */}
