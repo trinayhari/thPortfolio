@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
+import { ArrowUpRight, Github, Linkedin, Mail, Download } from 'lucide-react';
 
 const MinimalistPortfolio: React.FC = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -181,6 +181,14 @@ const MinimalistPortfolio: React.FC = () => {
           <p className="text-slate-500 max-w-md leading-relaxed transition-colors duration-300 hover:text-slate-400">
             Building scalable solutions and AI-powered applications at the intersection of technology and innovation.
           </p>
+          
+          {/* U.S. Citizenship Badge */}
+          <div className="pt-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 border border-blue-700/50 rounded-full text-blue-300">
+              <span className="text-sm">🇺🇸</span>
+              <span className="text-xs font-medium">U.S. Citizen</span>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -204,7 +212,7 @@ const MinimalistPortfolio: React.FC = () => {
         </nav>
 
         {/* Social Links */}
-        <div className={`flex gap-6 transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+        <div className={`flex gap-6 items-center transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <a
             href="https://github.com/trinayhari"
             target="_blank"
@@ -226,6 +234,18 @@ const MinimalistPortfolio: React.FC = () => {
             className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
           >
             <Mail className="w-6 h-6" />
+          </a>
+        </div>
+
+        {/* Resume Download Button */}
+        <div className={`transform transition-all duration-1000 delay-800 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+          <a
+            href="/Trinayaan-OpenAi.pdf"
+            download="Trinayaan_Hariharan_Resume.pdf"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-teal-400/20 border border-slate-700 hover:border-teal-400/50 rounded-lg text-slate-300 hover:text-teal-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10 group"
+          >
+            <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+            <span className="text-sm font-medium">Download Resume</span>
           </a>
         </div>
       </div>
