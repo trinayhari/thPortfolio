@@ -167,32 +167,79 @@ const MinimalistPortfolio: React.FC = () => {
       }}
     >
       {/* Fixed Left Sidebar */}
-      <div className={`w-1/2 fixed left-0 top-0 h-screen flex flex-col justify-between p-12 lg:p-24 transform transition-all duration-1000 ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Name and Title */}
-        <div className={`space-y-4 transform transition-all duration-1000 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-          <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-            Trinayaan
-            <br />
-            <span className="text-teal-400 transition-colors duration-500 hover:text-teal-300">Hariharan</span>
-          </h1>
-          <p className="text-xl text-slate-400 max-w-md transition-colors duration-300 hover:text-slate-300">
-            Computer Science Student & Software Engineer
-          </p>
-          <p className="text-slate-500 max-w-md leading-relaxed transition-colors duration-300 hover:text-slate-400">
-            Building scalable solutions and AI-powered applications at the intersection of technology and innovation.
-          </p>
-          
-          {/* U.S. Citizenship Badge */}
-          <div className="pt-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 border border-blue-700/50 rounded-full text-blue-300">
-              <span className="text-sm">🇺🇸</span>
-              <span className="text-xs font-medium">U.S. Citizen</span>
+      <div className={`w-1/2 fixed left-0 top-0 h-screen flex flex-col p-12 lg:p-24 pt-8 lg:pt-16 transform transition-all duration-1000 ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Profile Image and Name Section */}
+        <div className={`space-y-6 transform transition-all duration-1000 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} mb-12`}>
+          {/* Profile Picture */}
+          <div className="flex justify-center mb-6">
+            <div className="relative group">
+              <img
+                src="/profileprof.jpeg"
+                alt="Trinayaan Hariharan"
+                className="w-32 h-32 rounded-full object-cover border-2 border-slate-700 group-hover:border-teal-400 transition-all duration-500 transform group-hover:scale-105 shadow-lg shadow-slate-900/50 group-hover:shadow-teal-400/20"
+              />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-t from-teal-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </div>
+          </div>
+
+          {/* Name and Title */}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+              Trinayaan
+              <br />
+              <span className="text-teal-400 transition-colors duration-500 hover:text-teal-300">Hariharan</span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-md mx-auto transition-colors duration-300 hover:text-slate-300">
+              Computer Science Student & Software Engineer
+            </p>
+            <p className="text-slate-500 max-w-md mx-auto leading-relaxed transition-colors duration-300 hover:text-slate-400">
+              Building scalable solutions and AI-powered applications at the intersection of technology and innovation.
+            </p>
+            
+            {/* Resume Download Button */}
+            <div className="pt-2 flex justify-center">
+              <a
+                href="/Trinayaan-OpenAi.pdf"
+                download="Trinayaan_Hariharan_Resume.pdf"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-teal-400/20 border border-slate-700 hover:border-teal-400/50 rounded-lg text-slate-300 hover:text-teal-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10 group"
+              >
+                <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+                <span className="text-sm font-medium">Download Resume</span>
+              </a>
+            </div>
+            
+            {/* Social Links */}
+            <div className="pt-4 flex justify-center">
+              <div className="flex gap-4 items-center">
+                <a
+                  href="https://github.com/trinayhari"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/trinayaan-hariharan-0559b720a/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110"
+                >
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a
+                  href="mailto:trinayhari@gmail.com"
+                  className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110"
+                >
+                  <Mail className="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className={`space-y-4 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+        <nav className={`space-y-4 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} flex-1 flex flex-col justify-center px-8`}>
           {sections.map((section) => (
             <button
               key={section}
@@ -210,50 +257,12 @@ const MinimalistPortfolio: React.FC = () => {
             </button>
           ))}
         </nav>
-
-        {/* Social Links */}
-        <div className={`flex gap-6 items-center transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-          <a
-            href="https://github.com/trinayhari"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-          >
-            <Github className="w-6 h-6" />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/trinayaan-hariharan-0559b720a/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-          >
-            <Linkedin className="w-6 h-6" />
-          </a>
-          <a
-            href="mailto:trinayhari@gmail.com"
-            className="text-slate-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-          >
-            <Mail className="w-6 h-6" />
-          </a>
-        </div>
-
-        {/* Resume Download Button */}
-        <div className={`transform transition-all duration-1000 delay-800 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-          <a
-            href="/Trinayaan-OpenAi.pdf"
-            download="Trinayaan_Hariharan_Resume.pdf"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-teal-400/20 border border-slate-700 hover:border-teal-400/50 rounded-lg text-slate-300 hover:text-teal-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-teal-400/10 group"
-          >
-            <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-            <span className="text-sm font-medium">Download Resume</span>
-          </a>
-        </div>
       </div>
 
       {/* Scrollable Right Content */}
       <div className={`w-1/2 ml-auto transform transition-all duration-1000 delay-200 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}>
         <div id="content-scroll" className="h-screen overflow-y-auto scroll-smooth">
-          <div className="p-12 lg:p-24 space-y-24">
+          <div className="p-12 lg:p-24 pt-4 lg:pt-8 space-y-24">
             {/* About Section */}
             <section id="about-section" className="min-h-screen flex flex-col justify-center">
               <div className={`space-y-6 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
