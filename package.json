@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && npm run check:nlp && vite build",
-    "lint": "eslint .",
+    "build": "tsc -b && npm run lint && npm run check:nlp && vite build",
+    "lint": "eslint . --max-warnings 0",
     "preview": "vite preview",
     "check:nlp": "tsc scripts/check-routing.ts --outDir .nlp-check --module commonjs --target es2022 --moduleResolution node --skipLibCheck && node -e \"require('fs').writeFileSync('.nlp-check/package.json','{\\\"type\\\":\\\"commonjs\\\"}')\" && node .nlp-check/scripts/check-routing.js",
     "typecheck": "tsc -b"

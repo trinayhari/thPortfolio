@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Github, Linkedin, Mail, Download } from 'lucide-react';
 
+/* Module scope, not component scope: the list never changes, and rebuilding
+   it every render is what left the scroll effect's dependency array
+   incomplete. */
+const sections = ['about', 'education', 'experience', 'projects', 'skills'];
+
 const MinimalistPortfolio: React.FC = () => {
   const [activeSection, setActiveSection] = useState('about');
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const sections = ['about', 'education', 'experience', 'projects', 'skills'];
 
   useEffect(() => {
     setIsVisible(true);
