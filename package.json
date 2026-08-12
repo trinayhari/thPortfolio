@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run check:nlp && vite build",
+    "build": "tsc -b && npm run check:nlp && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "check:nlp": "tsc scripts/check-routing.ts --outDir .nlp-check --module commonjs --target es2022 --moduleResolution node --skipLibCheck && node -e \"require('fs').writeFileSync('.nlp-check/package.json','{\\\"type\\\":\\\"commonjs\\\"}')\" && node .nlp-check/scripts/check-routing.js"
+    "check:nlp": "tsc scripts/check-routing.ts --outDir .nlp-check --module commonjs --target es2022 --moduleResolution node --skipLibCheck && node -e \"require('fs').writeFileSync('.nlp-check/package.json','{\\\"type\\\":\\\"commonjs\\\"}')\" && node .nlp-check/scripts/check-routing.js",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
