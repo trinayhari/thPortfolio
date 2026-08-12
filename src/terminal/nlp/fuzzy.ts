@@ -44,23 +44,38 @@ export function editDistance(a: string, b: string, max = 2): number {
 
 /** How much misspelling to forgive, scaled to word length. */
 export function toleranceFor(word: string): number {
-  if (word.length <= 3) return 0;
-  if (word.length <= 5) return 1;
+  if (word.length <= 2) return 0;
+  if (word.length <= 4) return 1;
   return 2;
 }
 
 export type FuzzyHit = { term: string; distance: number };
 
-/** Closest vocabulary entry to `token`, or null if nothing is close enough. */
+/**
+ * Closest vocabulary entry to `token`, or null if nothing is close enough.
+ *
+ * Ties break toward candidates that share the first letter. People mistype
+ * the middle and end of a word far more often than the start, and without the
+ * preference "dun" corrects to "run" (one edit) rather than "done" (two).
+ */
 export function nearest(token: string, vocabulary: Iterable<string>): FuzzyHit | null {
   const max = toleranceFor(token);
   if (max === 0) return null;
   let best: FuzzyHit | null = null;
+  let bestRank = Infinity;
   for (const term of vocabulary) {
     if (term === token) return { term, distance: 0 };
     const d = editDistance(token, term, max);
-    if (d <= max && (!best || d < best.distance)) best = { term, distance: d };
-    if (best?.distance === 1) break;
+    if (d > max) continue;
+    /* On a short word one edit is most of the word, so a differing first
+       letter is not a typo — it is a different word. */
+    if (token.length <= 4 && term[0] !== token[0]) continue;
+    const rank = d * 2 + (term[0] === token[0] ? 0 : 1);
+    if (rank < bestRank) {
+      bestRank = rank;
+      best = { term, distance: d };
+      if (rank === 2) break; /* one edit, same initial — good enough */
+    }
   }
   return best;
 }

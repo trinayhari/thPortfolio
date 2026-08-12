@@ -20,7 +20,7 @@ import type { WorkDoc } from './corpus';
 import { nearest } from './fuzzy';
 import { INTENTS } from './intents';
 import type { IntentId } from './intents';
-import { analyze, contentOf, indexTerms, tokenize } from './text';
+import { analyze, contentOf, indexTerms, isCommonWord, tokenize } from './text';
 import type { Analysis } from './text';
 
 /* ── tuning ──────────────────────────────────────────────────────────────
@@ -63,11 +63,20 @@ const intentIndex = new BM25(PHRASE_DOCS);
 const workIndex = new BM25(WORK_DOCS);
 
 /**
- * Repair targets. Intentionally not the whole corpus — see KEY_TERMS. Intent
- * phrasings are included because they are curated rather than prose.
+ * Repair targets. Intentionally not the whole corpus — see KEY_TERMS.
+ *
+ * Both the surface forms of every intent phrasing and their stems are
+ * included: a visitor typing "wrked" needs "worked" to aim at, and the stem
+ * "work" is three edits away. Stopwords are targets too — they are correctly
+ * spelled words that repair must not drag onto something else.
  */
 const VOCABULARY: string[] = [
-  ...new Set([...intentIndex.vocabulary(), ...KEY_TERMS, ...ENTITY_TOKENS.keys()]),
+  ...new Set([
+    ...PHRASE_DOCS.flatMap((d) => d.value.tokens),
+    ...intentIndex.vocabulary(),
+    ...KEY_TERMS,
+    ...ENTITY_TOKENS.keys(),
+  ]),
 ];
 
 /* ── result shape ───────────────────────────────────────────────────────── */
@@ -100,7 +109,7 @@ function repair(text: string): { text: string; changed: boolean } {
   const known = new Set(VOCABULARY);
   let changed = false;
   const out = tokenize(text).map((token) => {
-    if (token.length < 4 || known.has(token)) return token;
+    if (token.length < 3 || known.has(token) || isCommonWord(token)) return token;
     /* a stemmed form may be in the vocabulary even when the surface form is not */
     if (known.has(indexTerms(token)[0])) return token;
     const hit = nearest(token, VOCABULARY);

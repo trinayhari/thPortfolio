@@ -66,6 +66,12 @@ export const QUERIES: Expectation[] = [
   { q: 'tell me abt ur projcts', expect: 'projects' },
   { q: 'wat is ur gpa', expect: 'education' },
   { q: 'echobord', expect: 'entity:echoboard' },
+  /* heavily misspelled — found live, several typos at once used to sink the
+     whole query below the confidence floor */
+  { q: 'wat kinda backend systms hav u wrked on', expect: 'systems' },
+  { q: 'whats ur strongest enginering wrk', expect: 'hardest' },
+  { q: 'hav u dun any internshps', expect: 'experience' },
+  { q: 'wher did u go to skool', expect: 'education' },
 
   /* topic retrieval — no intent, but the index has something */
   { q: 'postgres', expect: 'topic' },

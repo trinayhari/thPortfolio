@@ -43,6 +43,10 @@ const REWRITES: [RegExp, string][] = [
   [/\bproj\b/g, 'project'],
   [/\binfo\b/g, 'information'],
   [/\bbg\b/g, 'background'],
+  [/\bdun\b/g, 'done'],
+  [/\bthru\b/g, 'through'],
+  [/\bwat\b/g, 'what'],
+  [/\bhav\b/g, 'have'],
   [/\bcs\b/g, 'computer science'],
   [/\bswe\b/g, 'software engineer'],
   [/\bsde\b/g, 'software engineer'],
@@ -267,6 +271,16 @@ export function indexTerms(input: string): string[] {
     if (s.length >= 2) out.push(s);
   }
   return out;
+}
+
+/**
+ * Ordinary English that happens not to appear in the intent phrasings. Typo
+ * repair must leave these alone: without the guard, "any" is one edit from
+ * "an" and "have you done any internships" quietly becomes a different
+ * question.
+ */
+export function isCommonWord(token: string): boolean {
+  return STOPWORDS.has(token) || CONTENT_NOISE.has(token);
 }
 
 /** Terms for the work corpus — `indexTerms` minus the question scaffolding. */
