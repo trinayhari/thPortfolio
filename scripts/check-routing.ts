@@ -36,9 +36,17 @@ if (fails.length) {
   console.log(fails.join('\n'));
 }
 
-/* `node __check.js "some query"` explains one routing decision */
+/* `npm run check:nlp -- "some query"` explains one routing decision */
 const probe = process.argv[2];
 if (probe) {
   console.log('\nPROBE:', probe);
   console.dir(route(probe), { depth: 4 });
+}
+
+/* Non-zero exit is the whole point of the gate: `npm run build` chains this
+   ahead of vite, so a routing regression fails the deploy instead of
+   shipping a terminal that shrugs at questions it used to answer. */
+if (fails.length) {
+  console.log(`\n✗ ${fails.length} routing regression${fails.length > 1 ? 's' : ''} — not shipping.\n`);
+  process.exit(1);
 }
