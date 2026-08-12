@@ -12,6 +12,8 @@ html {
 
 body {
   margin: 0;
+  /* Nocturne ground — keeps the pre-paint frame and any overscroll dark. */
+  background: #161826;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
