@@ -25,3 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# routing check output
+.nlp-check

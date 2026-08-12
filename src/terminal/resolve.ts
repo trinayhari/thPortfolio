@@ -1,5 +1,9 @@
 import { COMMANDS, EXPERIENCE, LEADERSHIP, PROJECTS, SKILLS } from './data';
-import type { Answer, Block, Experience, PreLine, Project } from './types';
+import { ENTITIES } from './nlp/corpus';
+import { nearest } from './nlp/fuzzy';
+import { INTENTS } from './nlp/intents';
+import { route } from './nlp/router';
+import type { Answer, Block, Experience, ListItem, PreLine, Project } from './types';
 
 export type ResolveContext = { cmdHistory: string[] };
 
@@ -67,7 +71,7 @@ function notFound(s: string): Answer {
   };
 }
 
-export function resolve(q: string, ctx: ResolveContext): Answer {
+function resolveCommand(q: string, ctx: ResolveContext): Answer {
   const s = q.trim();
   const low = s.toLowerCase();
   const bare = low.replace(/^\//, '').replace(/[?.!]+$/, '').trim();
@@ -152,11 +156,11 @@ export function resolve(q: string, ctx: ResolveContext): Answer {
       .replace(/^projects?\//, '')
       .replace(/^experience\//, '')
       .trim();
-    if (key === 'about') return resolve('/about', ctx);
-    if (key === 'resume') return resolve('/resume', ctx);
-    if (key === 'contact') return resolve('/contact', ctx);
-    if (key === 'projects') return resolve('/projects', ctx);
-    if (key === 'experience') return resolve('/experience', ctx);
+    if (key === 'about') return resolveCommand('/about', ctx);
+    if (key === 'resume') return resolveCommand('/resume', ctx);
+    if (key === 'contact') return resolveCommand('/contact', ctx);
+    if (key === 'projects') return resolveCommand('/projects', ctx);
+    if (key === 'experience') return resolveCommand('/experience', ctx);
     const p = PROJECTS.find((x) => x.id === key || x.name.toLowerCase() === key);
     if (p)
       return {
@@ -165,6 +169,9 @@ export function resolve(q: string, ctx: ResolveContext): Answer {
       };
     const x = EXPERIENCE.find((v) => v.id === key || v.company.toLowerCase().includes(key));
     if (x) return expAnswer(x);
+    /* "open echobord" should still open EchoBoard */
+    const guess = resolveEntityName(key);
+    if (guess) return resolveCommand('open ' + guess, ctx);
     return notFound(s);
   }
 
@@ -482,4 +489,131 @@ export function resolve(q: string, ctx: ResolveContext): Answer {
   }
 
   return notFound(s);
+}
+
+/* ── natural-language entry point ─────────────────────────────────────────
+   Everything above answers a *command*. Everything below decides which
+   command a sentence was asking for. Commands stay exact and instant; only
+   free text pays for routing. */
+
+/** Closest project or employer name to a possibly-misspelled string. */
+function resolveEntityName(text: string): string | null {
+  const names: string[] = [];
+  const owner = new Map<string, string>();
+  for (const e of ENTITIES) {
+    for (const n of e.names) {
+      names.push(n);
+      owner.set(n, e.id);
+    }
+  }
+  const hit = nearest(text.trim(), names);
+  return hit ? owner.get(hit.term) || null : null;
+}
+
+/** Anything the visitor typed that is already a command, not a question. */
+function isCommand(low: string): boolean {
+  if (low.startsWith('/')) return true;
+  if (/^(ls|pwd|tree|dir|history|whoami|clear|exit|man|help)\b/.test(low)) return true;
+  if (/^(git|sudo|rm|open|cat|cd|read)\b/.test(low)) return true;
+  return COMMANDS.some((c) => c.cmd.toLowerCase() === low);
+}
+
+/** Turn retrieval hits into the same list block a scripted answer would use. */
+function topicAnswer(ids: string[], query: string): Answer {
+  const items: ListItem[] = [];
+  const tools: string[] = ['Searching index…'];
+
+  for (const id of ids) {
+    const p = PROJECTS.find((x) => x.id === id);
+    if (p) {
+      tools.push('Read(' + p.path + ')');
+      items.push({ title: p.name, meta: p.period, desc: p.desc, tags: p.stack.slice(0, 4), action: 'open →', cmd: 'open ' + p.id });
+      continue;
+    }
+    const x = EXPERIENCE.find((v) => v.id === id);
+    if (x) {
+      tools.push('Read(' + x.path + ')');
+      items.push({ title: x.title + '  ·  ' + x.company, meta: x.period, desc: x.desc, tags: x.tags, action: 'open →', cmd: 'open ' + x.id });
+      continue;
+    }
+    if (id.startsWith('leadership')) {
+      const l = LEADERSHIP[Number(id.split('-')[1]) || 0];
+      if (l) {
+        tools.push('Read(leadership.md)');
+        items.push({ title: l.title, meta: l.period, desc: l.org + ' — ' + l.bullets[0], tags: [], action: 'open →', cmd: '/leadership' });
+      }
+    }
+  }
+
+  if (!items.length) return notFound(query);
+  tools.push('Found ' + items.length + ' relevant piece' + (items.length > 1 ? 's' : '') + ' of work');
+
+  return {
+    tools,
+    blocks: [
+      {
+        t: 'text',
+        paras: [
+          'Nothing I’ve written answers that head-on, but ' +
+            (items.length > 1 ? items.length + ' pieces of work touch it' : 'one piece of work touches it') +
+            ' — closest first.',
+        ],
+      },
+      { t: 'list', items },
+      links({ label: 'Ask something else', cmd: '/help' }, { label: 'All projects', cmd: '/projects' }),
+    ],
+  };
+}
+
+/**
+ * The terminal's entry point.
+ *
+ * A command is answered directly. A sentence is routed first: normalized,
+ * spell-repaired, checked for a named project, scored against every known
+ * intent, and finally searched against the index of the work. Whatever the
+ * router settles on is expressed as a command, so there is exactly one set of
+ * answers regardless of how the visitor got there.
+ */
+export function resolve(q: string, ctx: ResolveContext): Answer {
+  const s = q.trim();
+  if (!s) return notFound(s);
+  if (isCommand(s.toLowerCase())) return resolveCommand(s, ctx);
+
+  const r = route(s);
+  let answer: Answer;
+
+  if (r.kind === 'entity' && r.entity) {
+    answer = resolveCommand('open ' + r.entity, ctx);
+  } else if (r.kind === 'intent' && r.intent) {
+    const intent = INTENTS.find((i) => i.id === r.intent);
+    answer = intent ? resolveCommand(intent.cmd, ctx) : notFound(s);
+  } else if (r.kind === 'topic' && r.docs?.length) {
+    answer = topicAnswer(r.docs.map((d) => d.id), s);
+  } else {
+    answer = notFound(s);
+    if (r.suggestions.length) {
+      answer.blocks = answer.blocks.map((b) =>
+        b.t === 'links' ? { t: 'links', actions: [...r.suggestions, ...b.actions].slice(0, 4) } : b
+      );
+    }
+  }
+
+  /* Say so when the query was repaired — a silent correction is a lie about
+     what was asked. */
+  if (r.corrected) {
+    answer = {
+      ...answer,
+      blocks: [{ t: 'note', text: '⌥  reading that as “' + r.corrected + '”' }, ...answer.blocks],
+    };
+  }
+
+  /* When two intents were within a hair of each other, offer the other one. */
+  if (r.alternative) {
+    answer = {
+      ...answer,
+      blocks: [...answer.blocks, { t: 'links', actions: [{ label: 'Or: ' + r.alternative.label, cmd: r.alternative.cmd }] }],
+    };
+  }
+
+  return answer;
 }
